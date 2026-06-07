@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FileFlux Dashboard — Mission Control</title>
+  <meta name="description" content="FileFlux admin dashboard: monitor users, analytics, feedback, and extension health."/>
+  <link rel="stylesheet" href="css/dashboard.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Press+Start+2P&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ============================
+     SIDEBAR
+     ============================ -->
+<aside id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">⚡</div>
+    <div class="brand-text">
+      <span class="pixel-text brand-name">FileFlux</span>
+      <span class="brand-sub">Mission Control</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-item active" href="#" data-page="overview" id="nav-overview">
+      <span class="nav-icon">🏠</span>
+      <span>Overview</span>
+    </a>
+    <a class="nav-item" href="#" data-page="users" id="nav-users">
+      <span class="nav-icon">👥</span>
+      <span>Users</span>
+      <span class="nav-badge" id="badge-users">—</span>
+    </a>
+    <a class="nav-item" href="#" data-page="analytics" id="nav-analytics">
+      <span class="nav-icon">📊</span>
+      <span>Analytics</span>
+    </a>
+    <a class="nav-item" href="#" data-page="feedback" id="nav-feedback">
+      <span class="nav-icon">💬</span>
+      <span>Feedback</span>
+      <span class="nav-badge new" id="badge-feedback">0</span>
+    </a>
+    <a class="nav-item" href="#" data-page="formats" id="nav-formats">
+      <span class="nav-icon">🗂️</span>
+      <span>File Formats</span>
+    </a>
+    <a class="nav-item" href="#" data-page="health" id="nav-health">
+      <span class="nav-icon">💚</span>
+      <span>Health</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="system-status">
+      <span class="status-dot pulse"></span>
+      <span class="pixel-text" style="font-size:7px; color:var(--matrix-green)">SYSTEMS OK</span>
+    </div>
+    <span style="font-size:11px; color:var(--text-muted)">v1.0.0</span>
+  </div>
+</aside>
+
+<!-- ============================
+     MAIN CONTENT
+     ============================ -->
+<main id="dashboard-main">
+
+  <!-- ──── TOPBAR ──── -->
+  <header class="dash-topbar">
+    <div class="topbar-left">
+      <h1 id="page-title" class="page-title">Overview</h1>
+      <span id="page-time" class="page-time"></span>
+    </div>
+    <div class="topbar-right">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Search..." id="global-search" class="search-input"/>
+      </div>
+      <button class="btn btn-primary btn-sm" id="btn-refresh">🔄 Refresh</button>
+      <div class="avatar-chip">
+        <span class="avatar">FF</span>
+        <span style="font-size:13px; font-weight:600;">Admin</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ──── PAGES ──── -->
+
+  <!-- ═══ OVERVIEW PAGE ═══ -->
+  <div class="page active" id="page-overview">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card card animate-fadeIn">
+        <div class="kpi-header">
+          <span class="kpi-label">Total Users</span>
+          <span class="kpi-icon">👥</span>
+        </div>
+        <div class="kpi-value" id="kpi-users">12,847</div>
+        <div class="kpi-delta positive">↑ +8.2% this week</div>
+        <div class="kpi-sparkline" id="spark-users"></div>
+      </div>
+
+      <div class="kpi-card card animate-fadeIn">
+        <div class="kpi-header">
+          <span class="kpi-label">Files Opened Today</span>
+          <span class="kpi-icon">📂</span>
+        </div>
+        <div class="kpi-value" id="kpi-files">3,219</div>
+        <div class="kpi-delta positive">↑ +12.4% vs yesterday</div>
+        <div class="kpi-sparkline" id="spark-files"></div>
+      </div>
+
+      <div class="kpi-card card animate-fadeIn">
+        <div class="kpi-header">
+          <span class="kpi-label">Conversions Today</span>
+          <span class="kpi-icon">🔄</span>
+        </div>
+        <div class="kpi-value" id="kpi-conversions">847</div>
+        <div class="kpi-delta positive">↑ +5.1%</div>
+        <div class="kpi-sparkline" id="spark-conversions"></div>
+      </div>
+
+      <div class="kpi-card card animate-fadeIn">
+        <div class="kpi-header">
+          <span class="kpi-label">Active Sessions</span>
+          <span class="kpi-icon">🟢</span>
+        </div>
+        <div class="kpi-value" id="kpi-sessions">284</div>
+        <div class="kpi-delta">Live now</div>
+        <div class="pulse-dot-container">
+          <span class="status-dot pulse" style="width:10px;height:10px;"></span>
+        </div>
+      </div>
+
+      <div class="kpi-card card animate-fadeIn">
+        <div class="kpi-header">
+          <span class="kpi-label">New Feedback</span>
+          <span class="kpi-icon">💬</span>
+        </div>
+        <div class="kpi-value" id="kpi-feedback">23</div>
+        <div class="kpi-delta warning">3 needs attention</div>
+      </div>
+
+      <div class="kpi-card card animate-fadeIn">
+        <div class="kpi-header">
+          <span class="kpi-label">Avg. Rating</span>
+          <span class="kpi-icon">⭐</span>
+        </div>
+        <div class="kpi-value" id="kpi-rating">4.8<span style="font-size:18px; color:var(--text-muted)">/5</span></div>
+        <div class="kpi-delta positive">↑ Excellent</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-card card">
+        <div class="chart-header">
+          <h3 class="chart-title">User Growth</h3>
+          <div class="chart-legend">
+            <span class="legend-dot" style="background:var(--neon-cyan)"></span><span>Users</span>
+            <span class="legend-dot" style="background:var(--neon-pink)"></span><span>Opens</span>
+          </div>
+        </div>
+        <canvas id="chart-growth" height="200"></canvas>
+      </div>
+
+      <div class="chart-card card">
+        <div class="chart-header">
+          <h3 class="chart-title">Top File Formats</h3>
+        </div>
+        <canvas id="chart-formats" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Activity & Feedback Row -->
+    <div class="activity-row">
+      <div class="activity-card card">
+        <div class="chart-header">
+          <h3 class="chart-title">Live Activity Feed</h3>
+          <span class="status-dot pulse" style="width:8px;height:8px;"></span>
+        </div>
+        <div id="activity-feed" class="activity-feed"></div>
+      </div>
+
+      <div class="activity-card card">
+        <div class="chart-header">
+          <h3 class="chart-title">Recent Feedback</h3>
+          <a href="#" class="link-all" data-page="feedback">View all →</a>
+        </div>
+        <div id="recent-feedback" class="feedback-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ USERS PAGE ═══ -->
+  <div class="page" id="page-users" style="display:none">
+    <div class="page-controls card">
+      <input type="text" class="input" id="user-search" placeholder="🔍 Search by email, browser..." style="width:250px"/>
+      <select class="input" id="user-filter-browser" style="width:160px">
+        <option value="">All Browsers</option>
+        <option value="chrome">Chrome</option>
+        <option value="firefox">Firefox</option>
+        <option value="brave">Brave</option>
+        <option value="edge">Edge</option>
+      </select>
+      <select class="input" id="user-sort" style="width:160px">
+        <option value="last_seen">Last Seen</option>
+        <option value="files_opened">Most Files Opened</option>
+        <option value="installs">Install Date</option>
+      </select>
+      <span id="user-count" style="font-size:13px; color:var(--text-muted)"></span>
+    </div>
+    <div class="table-wrapper card">
+      <table class="data-table" id="users-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Browser</th>
+            <th>OS</th>
+            <th>Version</th>
+            <th>Files Opened</th>
+            <th>Last Seen</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="user-pagination"></div>
+  </div>
+
+  <!-- ═══ ANALYTICS PAGE ═══ -->
+  <div class="page" id="page-analytics" style="display:none">
+    <div class="analytics-grid">
+      <div class="chart-card card">
+        <div class="chart-header">
+          <h3 class="chart-title">Daily Active Users (30d)</h3>
+        </div>
+        <canvas id="chart-dau" height="200"></canvas>
+      </div>
+      <div class="chart-card card">
+        <div class="chart-header">
+          <h3 class="chart-title">Hourly Activity Heatmap</h3>
+        </div>
+        <div id="heatmap-container" class="heatmap-container"></div>
+      </div>
+      <div class="chart-card card">
+        <div class="chart-header">
+          <h3 class="chart-title">Browser Distribution</h3>
+        </div>
+        <canvas id="chart-browsers" height="220"></canvas>
+      </div>
+      <div class="chart-card card">
+        <div class="chart-header">
+          <h3 class="chart-title">Conversions by Type</h3>
+        </div>
+        <canvas id="chart-conversions" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FEEDBACK PAGE ═══ -->
+  <div class="page" id="page-feedback" style="display:none">
+    <div class="page-controls card">
+      <select class="input" id="fb-filter" style="width:180px">
+        <option value="all">All Feedback</option>
+        <option value="bug">🐛 Bug Reports</option>
+        <option value="feature">✨ Feature Requests</option>
+        <option value="general">💭 General</option>
+        <option value="love">❤️ Positive</option>
+      </select>
+      <select class="input" id="fb-sort" style="width:160px">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="btn-export-feedback">⬇ Export CSV</button>
+    </div>
+    <div id="feedback-cards" class="feedback-cards"></div>
+  </div>
+
+  <!-- ═══ FILE FORMATS PAGE ═══ -->
+  <div class="page" id="page-formats" style="display:none">
+    <div class="formats-grid" id="formats-grid"></div>
+  </div>
+
+  <!-- ═══ HEALTH PAGE ═══ -->
+  <div class="page" id="page-health" style="display:none">
+    <div class="health-grid">
+      <div class="card health-card">
+        <div class="health-label">API Status</div>
+        <div class="health-value" id="health-api"><span class="status-dot pulse"></span> Operational</div>
+      </div>
+      <div class="card health-card">
+        <div class="health-label">Analytics Collector</div>
+        <div class="health-value"><span class="status-dot pulse"></span> Running</div>
+      </div>
+      <div class="card health-card">
+        <div class="health-label">Feedback Queue</div>
+        <div class="health-value" id="health-feedback-q">0 pending</div>
+      </div>
+      <div class="card health-card">
+        <div class="health-label">Extension Version</div>
+        <div class="health-value">v1.0.0</div>
+      </div>
+      <div class="card health-card">
+        <div class="health-label">Uptime</div>
+        <div class="health-value" id="health-uptime">—</div>
+      </div>
+      <div class="card health-card">
+        <div class="health-label">Error Rate (24h)</div>
+        <div class="health-value" style="color:var(--matrix-green)">0.02%</div>
+      </div>
+    </div>
+    <div class="card" style="padding:24px; margin-top:20px">
+      <h3 class="chart-title">System Logs</h3>
+      <div id="system-logs" class="system-logs"></div>
+    </div>
+  </div>
+
+</main>
+
+<script src="js/dashboard.js" type="module"></script>
+</body>
+</html>

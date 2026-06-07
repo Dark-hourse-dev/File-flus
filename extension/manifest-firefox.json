@@ -1,0 +1,68 @@
+{
+  "manifest_version": 2,
+  "name": "FileFlux — Open Anything",
+  "version": "1.0.0",
+  "description": "Open, edit & convert ANY file right in your browser. No extra software needed. fr fr no cap.",
+  "author": "FileFlux Team",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "browser_action": {
+    "default_popup": "pages/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "FileFlux — Open Anything"
+  },
+
+  "background": {
+    "scripts": ["js/background-mv2.js"],
+    "persistent": false
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/content.js"],
+      "run_at": "document_end"
+    }
+  ],
+
+  "permissions": [
+    "downloads",
+    "storage",
+    "contextMenus",
+    "notifications",
+    "tabs",
+    "activeTab",
+    "clipboardRead",
+    "<all_urls>"
+  ],
+
+  "web_accessible_resources": [
+    "pages/viewer.html",
+    "css/*.css",
+    "js/*.js",
+    "icons/*.png"
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fileflux@extension",
+      "strict_min_version": "109.0"
+    }
+  },
+
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": { "default": "Alt+F" },
+      "description": "Open FileFlux"
+    }
+  }
+}

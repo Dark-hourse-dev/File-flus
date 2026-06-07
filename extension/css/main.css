@@ -1,0 +1,325 @@
+/* ============================================================
+   FileFlux — Design System
+   Theme: Gen-Z Neon × Late 90s Retro Cyberpunk
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Press+Start+2P&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* --- Color Palette (softened) --- */
+  --neon-cyan:     #4dcfdb;
+  --neon-pink:     #d4608a;
+  --neon-purple:   #9b6fd4;
+  --electric-blue: #5b92e8;
+  --matrix-green:  #50c07a;
+  --retro-yellow:  #c9a83c;
+  --retro-orange:  #d4724a;
+
+  --bg-void:       #09090f;
+  --bg-dark:       #0e101c;
+  --bg-card:       #141728;
+  --bg-surface:    #1b1e31;
+  --bg-hover:      #22263e;
+  --border-glow:   rgba(77, 207, 219, 0.15);
+  --border-pink:   rgba(212, 96, 138, 0.15);
+
+  --text-primary:  #d8daf0;
+  --text-secondary:#8a8eb4;
+  --text-muted:    #565878;
+
+  /* --- Typography --- */
+  --font-pixel:  'Press Start 2P', monospace;
+  --font-main:   'Space Grotesk', sans-serif;
+  --font-ui:     'Outfit', sans-serif;
+
+  /* --- Gradients --- */
+  --grad-main:   linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-pink) 50%, var(--neon-purple) 100%);
+  --grad-card:   linear-gradient(145deg, rgba(77,207,219,0.04), rgba(155,111,212,0.04));
+  --grad-btn:    linear-gradient(135deg, #4dcfdb, #9b6fd4);
+  --grad-retro:  linear-gradient(135deg, #c9a83c, #d4724a, #d4608a);
+
+  /* --- Shadows & Glows (soft, non-fatiguing) --- */
+  --glow-cyan:   0 0 12px rgba(77, 207, 219, 0.20), 0 0 30px rgba(77, 207, 219, 0.06);
+  --glow-pink:   0 0 12px rgba(212, 96, 138, 0.20), 0 0 30px rgba(212, 96, 138, 0.06);
+  --glow-purple: 0 0 12px rgba(155, 111, 212, 0.20), 0 0 30px rgba(155, 111, 212, 0.06);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255,255,255,0.05);
+
+  /* --- Spacing --- */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   30px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================
+   Scanline Retro Overlay
+   ============================ */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ============================
+   Buttons
+   ============================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: var(--grad-btn);
+  color: var(--bg-void);
+  box-shadow: var(--glow-cyan);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0,245,255,0.6), 0 0 80px rgba(0,245,255,0.2);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+}
+.btn-secondary:hover {
+  background: rgba(0,245,255,0.1);
+  box-shadow: var(--glow-cyan);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ff2d9e, #ff6b35);
+  color: white;
+}
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-pink);
+}
+
+.btn-ghost {
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.btn-ghost:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+.btn-lg { padding: 14px 28px; font-size: 15px; }
+.btn-icon { padding: 8px; border-radius: var(--radius-sm); }
+
+/* ============================
+   Cards
+   ============================ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--grad-main);
+  opacity: 0.3;
+}
+.card:hover { border-color: var(--border-glow); }
+
+/* ============================
+   Tags / Badges
+   ============================ */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.tag-cyan { background: rgba(0,245,255,0.12); color: var(--neon-cyan); border: 1px solid rgba(0,245,255,0.2); }
+.tag-pink { background: rgba(255,45,158,0.12); color: var(--neon-pink); border: 1px solid rgba(255,45,158,0.2); }
+.tag-green { background: rgba(57,255,20,0.12); color: var(--matrix-green); border: 1px solid rgba(57,255,20,0.2); }
+.tag-purple { background: rgba(177,74,237,0.12); color: var(--neon-purple); border: 1px solid rgba(177,74,237,0.2); }
+
+/* ============================
+   Inputs & Form
+   ============================ */
+.input {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 14px;
+  padding: 10px 14px;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 0 3px rgba(0,245,255,0.1);
+}
+.input::placeholder { color: var(--text-muted); }
+
+select.input { cursor: pointer; }
+
+/* ============================
+   Pixel Headings
+   ============================ */
+.pixel-text {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.glitch-text {
+  position: relative;
+  animation: glitch 4s infinite;
+}
+@keyframes glitch {
+  0%, 90%, 100% { text-shadow: none; }
+  92% { text-shadow: -2px 0 var(--neon-pink), 2px 0 var(--neon-cyan); }
+  94% { text-shadow: 2px 0 var(--neon-pink), -2px 0 var(--neon-cyan); }
+  96% { text-shadow: -2px 0 var(--neon-cyan), 2px 0 var(--neon-pink); }
+}
+
+/* ============================
+   Neon Glow Divider
+   ============================ */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  border: none;
+  margin: 16px 0;
+  opacity: 0.3;
+}
+
+/* ============================
+   Scrollbar
+   ============================ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--neon-purple), var(--neon-cyan));
+  border-radius: 3px;
+}
+
+/* ============================
+   Tooltip
+   ============================ */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.1);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1000;
+}
+[data-tooltip]:hover::after { opacity: 1; }
+
+/* ============================
+   Animations
+   ============================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,245,255,0.2); }
+  50%       { box-shadow: 0 0 30px rgba(0,245,255,0.6); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.animate-fadeIn { animation: fadeIn 0.3s ease forwards; }
+.animate-float  { animation: float 3s ease-in-out infinite; }
+.animate-pulse  { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* ============================
+   Loader
+   ============================ */
+.loader {
+  width: 20px; height: 20px;
+  border: 2px solid rgba(0,245,255,0.2);
+  border-top-color: var(--neon-cyan);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ============================
+   Progress bar
+   ============================ */
+.progress-bar {
+  height: 4px;
+  background: var(--bg-surface);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--grad-main);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}

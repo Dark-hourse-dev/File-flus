@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FileFlux — Open Anything</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+<!-- ===== POPUP SHELL ===== -->
+<div id="popup-root">
+
+  <!-- Header -->
+  <header id="popup-header">
+    <div class="header-logo">
+      <img src="../icons/icon48.png" alt="FileFlux" class="logo-img" />
+      <div class="logo-text">
+        <span class="pixel-text glitch-text">FileFlux</span>
+        <span class="logo-tagline">open anything ⚡</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-icon" id="btn-settings" data-tooltip="Settings" title="Settings">⚙️</button>
+      <button class="btn btn-icon" id="btn-history" data-tooltip="History" title="History">📋</button>
+    </div>
+  </header>
+
+  <!-- Drop Zone -->
+  <div id="drop-zone" class="card drop-zone animate-fadeIn">
+    <div class="drop-zone-inner" id="drop-zone-inner">
+      <div class="drop-icon animate-float">📂</div>
+      <p class="drop-title">Drop any file here</p>
+      <p class="drop-sub">or paste a URL below</p>
+      <div class="drop-formats">
+        <span class="tag tag-cyan">PDF</span>
+        <span class="tag tag-pink">DOCX</span>
+        <span class="tag tag-green">MP4</span>
+        <span class="tag tag-purple">ZIP</span>
+        <span class="tag tag-cyan">SVG</span>
+        <span class="tag tag-pink">+50 more</span>
+      </div>
+    </div>
+    <!-- Drag overlay -->
+    <div class="drop-overlay" id="drop-overlay">
+      <span class="drop-overlay-text">Release to Open! 🚀</span>
+    </div>
+  </div>
+
+  <!-- URL Input -->
+  <div class="url-row animate-fadeIn">
+    <input
+      type="text"
+      class="input"
+      id="url-input"
+      placeholder="https://example.com/file.pdf"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button class="btn btn-primary btn-sm" id="btn-open-url">Open</button>
+  </div>
+
+  <!-- Page File Detector -->
+  <div id="page-files-section" class="page-files animate-fadeIn" style="display:none">
+    <div class="section-header">
+      <span class="pixel-text" style="font-size:8px; color: var(--neon-cyan)">// files on this page</span>
+      <button class="btn btn-ghost btn-sm" id="btn-scan-page">🔍 Scan</button>
+    </div>
+    <div id="page-files-list"></div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions animate-fadeIn">
+    <div class="qa-title pixel-text">quick actions</div>
+    <div class="qa-grid">
+      <button class="qa-btn" id="qa-scan" data-tooltip="Scan current page for files">
+        <span class="qa-icon">🔍</span>
+        <span class="qa-label">Scan Page</span>
+      </button>
+      <button class="qa-btn" id="qa-convert" data-tooltip="Convert a local file">
+        <span class="qa-icon">🔄</span>
+        <span class="qa-label">Convert</span>
+      </button>
+      <button class="qa-btn" id="qa-paste" data-tooltip="Open from clipboard">
+        <span class="qa-icon">📋</span>
+        <span class="qa-label">Clipboard</span>
+      </button>
+      <button class="qa-btn" id="qa-feedback" data-tooltip="Send Feedback">
+        <span class="qa-icon">💬</span>
+        <span class="qa-label">Feedback</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div id="status-bar" class="status-bar" style="display:none">
+    <div class="loader"></div>
+    <span id="status-text">Processing...</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="popup-footer">
+    <span class="pixel-text" style="font-size:7px; color:var(--text-muted)">v1.0.0</span>
+    <span class="footer-sep">|</span>
+    <a href="#" id="link-dashboard" class="footer-link">Dashboard</a>
+    <span class="footer-sep">|</span>
+    <a href="#" id="link-privacy" class="footer-link">Privacy</a>
+  </footer>
+
+</div>
+
+<!-- ===== FEEDBACK MODAL ===== -->
+<div id="feedback-modal" class="modal-backdrop" style="display:none">
+  <div class="modal card animate-fadeIn">
+    <div class="modal-header">
+      <h3 class="pixel-text" style="font-size:9px">Send Feedback 💬</h3>
+      <button class="btn btn-icon btn-ghost" id="modal-close">✕</button>
+    </div>
+    <hr class="divider"/>
+    <div class="modal-body">
+      <label class="form-label">Type</label>
+      <select class="input" id="feedback-type">
+        <option value="bug">🐛 Bug Report</option>
+        <option value="feature">✨ Feature Request</option>
+        <option value="general">💭 General Feedback</option>
+        <option value="love">❤️ Just Love It</option>
+      </select>
+      <label class="form-label" style="margin-top:12px">Message</label>
+      <textarea class="input" id="feedback-text" rows="4" placeholder="tell us fr fr no cap..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="btn-submit-feedback">Send it 🚀</button>
+      <button class="btn btn-ghost" id="btn-cancel-feedback">nah</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div id="settings-modal" class="modal-backdrop" style="display:none">
+  <div class="modal card animate-fadeIn">
+    <div class="modal-header">
+      <h3 class="pixel-text" style="font-size:9px">Settings ⚙️</h3>
+      <button class="btn btn-icon btn-ghost" id="settings-close">✕</button>
+    </div>
+    <hr class="divider"/>
+    <div class="modal-body">
+      <div class="setting-row">
+        <div class="setting-info">
+          <span class="setting-title">Auto-scan pages</span>
+          <span class="setting-desc">Detect files when you visit a page</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-autoscan" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <span class="setting-title">Context Menu</span>
+          <span class="setting-desc">Right-click to open with FileFlux</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-contextmenu" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <span class="setting-title">Analytics</span>
+          <span class="setting-desc">Help us improve (anonymous)</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-analytics" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <span class="setting-title">Retro FX</span>
+          <span class="setting-desc">Scanlines & glow effects</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-retro" checked/>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="btn-save-settings">Save ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" id="file-input" style="display:none" accept="*/*" multiple />
+
+<script src="../js/popup.js" type="module"></script>
+</body>
+</html>

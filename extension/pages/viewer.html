@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FileFlux Viewer</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="viewer.css" />
+  <!-- Marked for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Highlight.js for code -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <!-- JSZip for archives -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- PapaParse for CSV -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+
+<!-- ============ TOPBAR ============ -->
+<header id="topbar">
+  <div class="topbar-left">
+    <button class="btn btn-ghost btn-sm" id="btn-back" title="Back">← Back</button>
+    <div class="file-info">
+      <span id="file-icon" class="file-icon-lg">📄</span>
+      <div class="file-meta">
+        <span id="file-name" class="file-name-display">Loading...</span>
+        <span id="file-type-badge" class="tag tag-cyan">FILE</span>
+        <span id="file-size" style="font-size:11px;color:var(--text-muted)"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar-center" id="toolbar-dynamic">
+    <!-- Dynamic tools injected by viewer -->
+  </div>
+
+  <div class="topbar-right">
+    <button class="btn btn-secondary btn-sm" id="btn-convert" title="Convert file">🔄 Convert</button>
+    <button class="btn btn-primary btn-sm" id="btn-download" title="Download file">⬇ Download</button>
+    <button class="btn btn-ghost btn-sm" id="btn-share" title="Share">📤</button>
+  </div>
+</header>
+
+<!-- ============ CONVERT PANEL ============ -->
+<div id="convert-panel" class="convert-panel" style="display:none">
+  <div class="convert-inner card">
+    <h3 class="pixel-text" style="font-size:9px; color:var(--neon-cyan)">⚡ Convert File</h3>
+    <hr class="divider"/>
+    <div class="convert-options" id="convert-options">
+      <!-- Injected dynamically -->
+    </div>
+    <div id="convert-status" style="display:none">
+      <div class="progress-bar"><div class="progress-fill" id="convert-progress" style="width:0%"></div></div>
+      <span id="convert-status-text" style="font-size:12px; color:var(--neon-cyan)"></span>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="convert-close" style="margin-top:10px; align-self:flex-end">Close</button>
+  </div>
+</div>
+
+<!-- ============ MAIN CONTENT ============ -->
+<main id="viewer-main">
+
+  <!-- Loading State -->
+  <div id="viewer-loading" class="viewer-loading">
+    <div class="loading-animation">
+      <div class="loading-ring"></div>
+      <span class="pixel-text" style="font-size:8px; color:var(--neon-cyan); animation: pulse-glow 1.5s infinite;">LOADING...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="viewer-error" class="viewer-error" style="display:none">
+    <div class="error-card card">
+      <span style="font-size:48px">😵</span>
+      <h2 class="pixel-text glitch-text" style="font-size:11px; color:var(--neon-pink)">Cannot Open File</h2>
+      <p id="error-message" style="color:var(--text-secondary); font-size:13px;"></p>
+      <div style="display:flex; gap:10px; margin-top:16px">
+        <button class="btn btn-primary" id="btn-try-download">Download Instead</button>
+        <button class="btn btn-ghost" id="btn-back-error">Go Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Welcome Screen -->
+  <div id="viewer-welcome" class="viewer-welcome" style="display:none">
+    <div class="welcome-content">
+      <div class="welcome-logo animate-float">
+        <img src="../icons/icon128.png" alt="FileFlux" style="width:80px; border-radius:20px; box-shadow: 0 0 40px rgba(0,245,255,0.4)"/>
+      </div>
+      <h1 class="welcome-title">
+        <span class="pixel-text glitch-text" style="font-size:14px; background:var(--grad-main); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">FileFlux</span>
+      </h1>
+      <p class="welcome-sub">Open • Edit • Convert <em>any</em> file. No apps needed. no cap. 🔥</p>
+      <div class="welcome-formats">
+        <div class="format-grid">
+          <div class="format-cat card">
+            <span style="font-size:24px">📄</span>
+            <span>Documents</span>
+            <small>PDF, DOCX, XLSX, PPTX</small>
+          </div>
+          <div class="format-cat card">
+            <span style="font-size:24px">🖼️</span>
+            <span>Images</span>
+            <small>PNG, JPG, SVG, WebP</small>
+          </div>
+          <div class="format-cat card">
+            <span style="font-size:24px">🎬</span>
+            <span>Video</span>
+            <small>MP4, MKV, WebM</small>
+          </div>
+          <div class="format-cat card">
+            <span style="font-size:24px">🎵</span>
+            <span>Audio</span>
+            <small>MP3, WAV, FLAC</small>
+          </div>
+          <div class="format-cat card">
+            <span style="font-size:24px">🗜️</span>
+            <span>Archives</span>
+            <small>ZIP, RAR, 7Z</small>
+          </div>
+          <div class="format-cat card">
+            <span style="font-size:24px">⚡</span>
+            <span>Code</span>
+            <small>JS, PY, HTML, CSS</small>
+          </div>
+        </div>
+      </div>
+      <div class="welcome-actions">
+        <label class="btn btn-primary btn-lg" for="welcome-file-input">📂 Open a File</label>
+        <input type="file" id="welcome-file-input" style="display:none" accept="*/*"/>
+      </div>
+      <p class="welcome-hint">💡 Tip: Right-click any file link → <strong>Open with FileFlux</strong></p>
+    </div>
+  </div>
+
+  <!-- ─── VIEWERS ─── -->
+
+  <!-- Image Viewer -->
+  <div id="viewer-image" class="viewer-pane" style="display:none">
+    <div class="image-container">
+      <img id="img-display" alt="Image" />
+    </div>
+    <div id="image-toolbar" class="floating-toolbar card">
+      <button class="btn btn-ghost btn-sm" id="img-zoom-in"  title="Zoom In">🔍+</button>
+      <button class="btn btn-ghost btn-sm" id="img-zoom-out" title="Zoom Out">🔍-</button>
+      <button class="btn btn-ghost btn-sm" id="img-reset"    title="Reset">↺</button>
+      <button class="btn btn-ghost btn-sm" id="img-rotate"   title="Rotate">🔄</button>
+      <button class="btn btn-ghost btn-sm" id="img-flip-h"   title="Flip H">↔</button>
+      <button class="btn btn-ghost btn-sm" id="img-flip-v"   title="Flip V">↕</button>
+      <span id="img-zoom-label" style="font-size:11px; color:var(--text-muted); margin:0 6px">100%</span>
+    </div>
+  </div>
+
+  <!-- Video Viewer -->
+  <div id="viewer-video" class="viewer-pane" style="display:none">
+    <video id="vid-display" controls playsinline></video>
+  </div>
+
+  <!-- Audio Viewer -->
+  <div id="viewer-audio" class="viewer-pane audio-pane" style="display:none">
+    <div class="audio-visual card">
+      <div class="audio-icon animate-pulse">🎵</div>
+      <h2 id="audio-title" style="font-size:18px; font-weight:700; color:var(--text-primary)">Track</h2>
+      <div class="audio-bars" id="audio-bars">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div>
+      </div>
+      <audio id="aud-display" controls></audio>
+    </div>
+  </div>
+
+  <!-- PDF Viewer -->
+  <div id="viewer-pdf" class="viewer-pane" style="display:none">
+    <div class="pdf-controls card">
+      <button class="btn btn-ghost btn-sm" id="pdf-prev">← Prev</button>
+      <span id="pdf-pageinfo" style="font-size:12px; color:var(--text-muted)">Page 1 / 1</span>
+      <button class="btn btn-ghost btn-sm" id="pdf-next">Next →</button>
+      <button class="btn btn-ghost btn-sm" id="pdf-zoom-in">🔍+</button>
+      <button class="btn btn-ghost btn-sm" id="pdf-zoom-out">🔍-</button>
+    </div>
+    <div class="pdf-canvas-container">
+      <canvas id="pdf-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Text / Code / Markdown Viewer -->
+  <div id="viewer-text" class="viewer-pane" style="display:none">
+    <div class="text-toolbar card">
+      <button class="btn btn-ghost btn-sm" id="text-edit-toggle">✏️ Edit</button>
+      <button class="btn btn-ghost btn-sm" id="text-wrap-toggle">↩ Wrap</button>
+      <button class="btn btn-ghost btn-sm" id="text-copy">📋 Copy</button>
+      <span id="text-info" style="font-size:11px; color:var(--text-muted)"></span>
+    </div>
+    <!-- Edit Mode -->
+    <textarea id="text-editor" class="text-editor" style="display:none"></textarea>
+    <!-- View Mode -->
+    <div id="text-view-container">
+      <pre id="text-display" class="text-display"><code id="text-code"></code></pre>
+    </div>
+    <!-- Markdown rendered view -->
+    <div id="md-preview" class="md-preview" style="display:none"></div>
+  </div>
+
+  <!-- Table / CSV Viewer -->
+  <div id="viewer-table" class="viewer-pane" style="display:none">
+    <div class="table-toolbar card">
+      <input type="text" class="input" id="table-search" placeholder="🔍 Search rows..." style="width:200px; font-size:12px"/>
+      <span id="table-info" style="font-size:11px; color:var(--text-muted)"></span>
+      <button class="btn btn-ghost btn-sm" id="table-copy-csv">📋 Copy CSV</button>
+    </div>
+    <div class="table-container">
+      <table id="csv-table" class="data-table"></table>
+    </div>
+  </div>
+
+  <!-- Archive Viewer -->
+  <div id="viewer-archive" class="viewer-pane" style="display:none">
+    <div class="archive-header card">
+      <span id="archive-info" style="font-size:13px; font-weight:600; color:var(--text-primary)"></span>
+    </div>
+    <div id="archive-list" class="archive-list"></div>
+  </div>
+
+  <!-- Office / Unknown Viewer -->
+  <div id="viewer-office" class="viewer-pane" style="display:none">
+    <div class="office-inner card">
+      <span style="font-size:48px" id="office-icon">📄</span>
+      <h2 id="office-title" style="font-size:18px; font-weight:700">Document</h2>
+      <p style="color:var(--text-secondary); font-size:13px; max-width:400px; text-align:center;">
+        This file type uses Microsoft Office / Google Docs format. Open it in your browser's built-in viewer or download it.
+      </p>
+      <div style="display:flex; gap:12px; margin-top:20px">
+        <button class="btn btn-primary" id="office-google">📄 Open in Google Docs</button>
+        <button class="btn btn-secondary" id="office-download">⬇ Download</button>
+      </div>
+      <div class="office-preview-iframe-container" id="office-iframe-container" style="display:none">
+        <iframe id="office-iframe" src="" style="width:100%;height:500px;border:none;border-radius:12px;"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unknown Viewer -->
+  <div id="viewer-unknown" class="viewer-pane unknown-pane" style="display:none">
+    <div class="unknown-card card">
+      <span style="font-size:64px" id="unknown-icon">📁</span>
+      <h2 class="pixel-text" style="font-size:10px; color:var(--neon-yellow)">⚠ Unsupported Format</h2>
+      <p id="unknown-msg" style="color:var(--text-secondary); font-size:13px;"></p>
+      <div style="display:flex; gap:12px; margin-top:20px">
+        <button class="btn btn-primary" id="unknown-download">⬇ Download File</button>
+        <button class="btn btn-secondary" id="unknown-text">📄 Try as Text</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============ FOOTER STATUS ============ -->
+<div id="viewer-statusbar" class="viewer-statusbar">
+  <span class="pixel-text" style="font-size:7px; color:var(--text-muted)">FileFlux v1.0.0</span>
+  <span id="viewer-status-msg" style="font-size:12px; color:var(--neon-cyan)"></span>
+</div>
+
+<script src="../js/viewer.js" type="module"></script>
+</body>
+</html>
