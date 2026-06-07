@@ -30,7 +30,7 @@ Once you have deployed your Dashboard (e.g., to Vercel), you need to tell the Ex
    ```javascript
    export const CONFIG = {
      // Replace this with your actual Vercel Dashboard URL
-     DASHBOARD_URL: 'https://fileflux-dashboard-yourname.vercel.app',
+     DASHBOARD_URL: 'https://fileflus-22t7enx8n-evil-monk-s-projects.vercel.app',
    };
    ```
 

@@ -9,7 +9,7 @@
 export const CONFIG = {
   // 1. Replace with your actual Vercel Dashboard URL
   // Example: 'https://fileflux-dashboard-yourname.vercel.app'
-  DASHBOARD_URL: 'https://fileflus-22t7enx8n-evil-monk-s-projects.vercel.app/',
+  DASHBOARD_URL: 'https://fileflus-22t7enx8n-evil-monk-s-projects.vercel.app',
 
   // Note: No trailing slash (/) at the end of the URL
 };
