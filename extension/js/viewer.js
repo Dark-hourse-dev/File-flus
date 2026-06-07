@@ -130,7 +130,7 @@ async function fetchProxy(url, type = 'text') {
 async function viewPdf(file) {
   showPane('viewer-pdf');
   try {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '../js/pdf.worker.min.js';
     setStatus('Loading PDF...');
     const buffer = await fetchProxy(file.url, 'arrayBuffer');
     pdfDoc = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;

@@ -42,7 +42,8 @@
     "notifications",
     "tabs",
     "activeTab",
-    "scripting"
+    "scripting",
+    "alarms"
   ],
 
   "host_permissions": [
