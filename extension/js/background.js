@@ -104,7 +104,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       .then(data => {
         if (msg.responseType === 'arrayBuffer') {
           // Convert arrayBuffer to base64 to send over message passing
-          const base64 = btoa(new Uint8Array(data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+          const base64 = btoa(new Uint8Array(data).reduce((acc, byte) => acc + String.fromCharCode(byte), ''));
           sendResponse({ ok: true, data: base64 });
         } else {
           sendResponse({ ok: true, data });
