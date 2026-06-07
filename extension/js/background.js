@@ -3,6 +3,8 @@
  * Handles context menus, download interception, feedback sync.
  */
 
+import { getApiUrl } from './config.js';
+
 // ─────────────────────────────────────────
 // Installation
 // ─────────────────────────────────────────
@@ -103,8 +105,8 @@ async function syncFeedback() {
     const stored = await chrome.storage.local.get({ feedbackQueue: [] });
     if (stored.feedbackQueue.length === 0) return;
 
-    // Replace with your actual dashboard API endpoint
-    const DASHBOARD_URL = 'https://fileflux-dashboard.vercel.app/api/feedback';
+    // Use URL from config.js
+    const DASHBOARD_URL = getApiUrl('/api/feedback');
 
     const resp = await fetch(DASHBOARD_URL, {
       method: 'POST',
@@ -152,7 +154,7 @@ async function flushAnalytics() {
     const stored = await chrome.storage.local.get({ analyticsQueue: [] });
     if (stored.analyticsQueue.length === 0) return;
 
-    const ANALYTICS_URL = 'https://fileflux-dashboard.vercel.app/api/analytics';
+    const ANALYTICS_URL = getApiUrl('/api/analytics');
 
     const resp = await fetch(ANALYTICS_URL, {
       method: 'POST',
