@@ -94,6 +94,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     trackEvent(msg.event, msg.data);
     sendResponse({ ok: true });
   }
+  if (msg.action === 'fetchUrl') {
+    // Proxy fetch to bypass CORS
+    fetch(msg.url)
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return msg.responseType === 'arrayBuffer' ? r.arrayBuffer() : r.text();
+      })
+      .then(data => {
+        if (msg.responseType === 'arrayBuffer') {
+          // Convert arrayBuffer to base64 to send over message passing
+          const base64 = btoa(new Uint8Array(data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+          sendResponse({ ok: true, data: base64 });
+        } else {
+          sendResponse({ ok: true, data });
+        }
+      })
+      .catch(err => {
+        sendResponse({ ok: false, error: err.message });
+      });
+    return true; // keep channel open
+  }
   return true;
 });
 

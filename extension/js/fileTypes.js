@@ -6,12 +6,12 @@
 export const FILE_TYPES = {
   // Documents
   pdf:   { icon: '📄', name: 'PDF Document',      viewer: 'pdf',    color: '#ff4444', category: 'document' },
-  docx:  { icon: '📝', name: 'Word Document',      viewer: 'office', color: '#2b7bb8', category: 'document' },
-  doc:   { icon: '📝', name: 'Word Document',      viewer: 'office', color: '#2b7bb8', category: 'document' },
+  docx:  { icon: '📝', name: 'Word Document',      viewer: 'docx', color: '#2b7bb8', category: 'document' },
+  doc:   { icon: '📝', name: 'Word Document',      viewer: 'docx', color: '#2b7bb8', category: 'document' },
   pptx:  { icon: '📊', name: 'PowerPoint',         viewer: 'office', color: '#d04929', category: 'document' },
   ppt:   { icon: '📊', name: 'PowerPoint',         viewer: 'office', color: '#d04929', category: 'document' },
-  xlsx:  { icon: '📗', name: 'Excel Spreadsheet',  viewer: 'office', color: '#1f7244', category: 'document' },
-  xls:   { icon: '📗', name: 'Excel Spreadsheet',  viewer: 'office', color: '#1f7244', category: 'document' },
+  xlsx:  { icon: '📗', name: 'Excel Spreadsheet',  viewer: 'xlsx', color: '#1f7244', category: 'document' },
+  xls:   { icon: '📗', name: 'Excel Spreadsheet',  viewer: 'xlsx', color: '#1f7244', category: 'document' },
   odt:   { icon: '📝', name: 'OpenDocument Text',  viewer: 'office', color: '#3daee9', category: 'document' },
   rtf:   { icon: '📄', name: 'Rich Text Format',   viewer: 'text',   color: '#888',    category: 'document' },
   txt:   { icon: '🗒️', name: 'Text File',           viewer: 'text',   color: '#aaa',    category: 'text'     },

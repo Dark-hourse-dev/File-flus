@@ -17,6 +17,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <!-- PapaParse for CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- Mammoth (DOCX) and SheetJS (XLSX) -->
+  <script src="../js/mammoth.min.js"></script>
+  <script src="../js/xlsx.min.js"></script>
 </head>
 <body>
 
@@ -224,6 +227,19 @@
       <span id="archive-info" style="font-size:13px; font-weight:600; color:var(--text-primary)"></span>
     </div>
     <div id="archive-list" class="archive-list"></div>
+  </div>
+
+  <!-- DOCX Viewer -->
+  <div id="viewer-docx" class="viewer-pane" style="display:none; padding:20px; background:#fff; color:#000; overflow-y:auto; overflow-x:hidden;">
+    <div id="docx-content" style="max-width:800px; margin:0 auto; padding:20px;"></div>
+  </div>
+
+  <!-- XLSX Viewer -->
+  <div id="viewer-xlsx" class="viewer-pane" style="display:none; overflow:auto; padding:10px;">
+    <div class="xlsx-toolbar card" style="margin-bottom:10px; display:flex; gap:10px;" id="xlsx-tabs"></div>
+    <div class="table-container" style="background:#fff; color:#000;">
+      <table id="xlsx-table" class="data-table" style="border-collapse: collapse; width: 100%;"></table>
+    </div>
   </div>
 
   <!-- Office / Unknown Viewer -->

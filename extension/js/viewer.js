@@ -104,12 +104,36 @@ async function viewAudio(file) {
   aud.src = file.url;
 }
 
+// ─────────────────────────────────────────
+// Fetch Proxy (Bypasses CORS via Background)
+// ─────────────────────────────────────────
+async function fetchProxy(url, type = 'text') {
+  if (url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('file:')) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return type === 'arrayBuffer' ? await res.arrayBuffer() : await res.text();
+  }
+  const result = await chrome.runtime.sendMessage({ action: 'fetchUrl', url, responseType: type });
+  if (!result || !result.ok) throw new Error(result?.error || 'Network error / CORS blocked');
+  
+  if (type === 'arrayBuffer') {
+    const binary = atob(result.data);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+  }
+  return result.data;
+}
+
 // ── PDF ──
 async function viewPdf(file) {
   showPane('viewer-pdf');
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    pdfDoc = await pdfjsLib.getDocument(file.url).promise;
+    setStatus('Loading PDF...');
+    const buffer = await fetchProxy(file.url, 'arrayBuffer');
+    pdfDoc = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
     pdfPage = 1;
     await renderPdfPage();
     setStatus(`${pdfDoc.numPages} page(s)`);
@@ -139,9 +163,8 @@ document.getElementById('pdf-zoom-out').addEventListener('click', async () => { 
 async function viewText(file, ext) {
   showPane('viewer-text');
   try {
-    const resp = await fetch(file.url);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    textContent = await resp.text();
+    setStatus('Loading text...');
+    textContent = await fetchProxy(file.url, 'text');
 
     const isMarkdown = ['md', 'markdown'].includes(ext);
     const code = document.getElementById('text-code');
@@ -210,8 +233,8 @@ document.getElementById('text-copy').addEventListener('click', async () => {
 async function viewCsv(file) {
   showPane('viewer-table');
   try {
-    const resp = await fetch(file.url);
-    const text = await resp.text();
+    setStatus('Loading CSV...');
+    const text = await fetchProxy(file.url, 'text');
     const result = Papa.parse(text, { header: true, skipEmptyLines: true });
     const { data, meta } = result;
 
@@ -272,8 +295,7 @@ async function viewArchive(file) {
   showPane('viewer-archive');
   try {
     setStatus('Loading archive...');
-    const resp = await fetch(file.url);
-    const buf  = await resp.arrayBuffer();
+    const buf = await fetchProxy(file.url, 'arrayBuffer');
     const zip  = await JSZip.loadAsync(buf);
 
     const files = Object.values(zip.files);
@@ -314,18 +336,73 @@ async function viewArchive(file) {
   }
 }
 
-// ── OFFICE ──
+// ── DOCX ──
+async function viewDocx(file) {
+  showPane('viewer-docx');
+  try {
+    setStatus('Rendering DOCX...');
+    const buffer = await fetchProxy(file.url, 'arrayBuffer');
+    const result = await mammoth.convertToHtml({ arrayBuffer: buffer });
+    document.getElementById('docx-content').innerHTML = result.value;
+    setStatus('Loaded DOCX successfully');
+  } catch (e) {
+    showError('Could not render DOCX: ' + e.message);
+  }
+}
+
+// ── XLSX ──
+async function viewXlsx(file) {
+  showPane('viewer-xlsx');
+  try {
+    setStatus('Rendering Spreadsheet...');
+    const buffer = await fetchProxy(file.url, 'arrayBuffer');
+    const workbook = XLSX.read(buffer, { type: 'array' });
+    
+    const tabsContainer = document.getElementById('xlsx-tabs');
+    const tableContainer = document.getElementById('xlsx-table');
+    tabsContainer.innerHTML = '';
+    
+    workbook.SheetNames.forEach((sheetName, i) => {
+      const btn = document.createElement('button');
+      btn.className = `btn btn-sm ${i === 0 ? 'btn-primary' : 'btn-ghost'}`;
+      btn.textContent = sheetName;
+      btn.addEventListener('click', () => {
+        tabsContainer.querySelectorAll('button').forEach(b => b.className = 'btn btn-sm btn-ghost');
+        btn.className = 'btn btn-sm btn-primary';
+        const html = XLSX.utils.sheet_to_html(workbook.Sheets[sheetName]);
+        tableContainer.innerHTML = html.replace(/<table.*?>/i, '').replace(/<\/table>/i, '');
+      });
+      tabsContainer.appendChild(btn);
+    });
+
+    if (workbook.SheetNames.length > 0) {
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const html = XLSX.utils.sheet_to_html(firstSheet);
+      tableContainer.innerHTML = html.replace(/<table.*?>/i, '').replace(/<\/table>/i, '');
+    }
+    setStatus('Loaded Spreadsheet successfully');
+  } catch (e) {
+    showError('Could not render Spreadsheet: ' + e.message);
+  }
+}
+
+// ── OFFICE (Fallback) ──
 function viewOffice(file, info) {
   showPane('viewer-office');
   document.getElementById('office-icon').textContent  = info.icon;
   document.getElementById('office-title').textContent = file.name;
 
-  // Try Google Docs viewer
-  const googleUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(file.url)}&embedded=true`;
-
   document.getElementById('office-google').addEventListener('click', () => {
     const container = document.getElementById('office-iframe-container');
     const iframe    = document.getElementById('office-iframe');
+    
+    // Google Docs Viewer needs a public HTTP/HTTPS URL to work
+    if (file.url.startsWith('blob:') || file.url.startsWith('file:') || file.url.startsWith('data:')) {
+      alert("Cannot open in Google Docs: This is a local file. Google Docs requires a public link to preview it.\n\nPlease click 'Download' to view it on your computer instead.");
+      return;
+    }
+
+    const googleUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(file.url)}&embedded=true`;
     container.style.display = 'block';
     iframe.src = googleUrl;
     setStatus('Loading via Google Docs viewer...');
@@ -368,6 +445,8 @@ async function loadFile(file) {
       case 'code':    await viewText(file, file.ext); break;
       case 'table':   await viewCsv(file); break;
       case 'archive': await viewArchive(file); break;
+      case 'docx':    await viewDocx(file); break;
+      case 'xlsx':    await viewXlsx(file); break;
       case 'office':  viewOffice(file, info); break;
       default:        viewUnknown(file, info); break;
     }
@@ -502,10 +581,28 @@ async function triggerConvert(fromExt, toExt) {
 // Download
 // ─────────────────────────────────────────
 function downloadFile(file) {
-  const a = document.createElement('a');
-  a.href = file.url;
-  a.download = file.name || 'download';
-  a.click();
+  // If it's a blob/local file, use the <a> tag fallback
+  if (file.url.startsWith('blob:') || file.url.startsWith('data:')) {
+    const a = document.createElement('a');
+    a.href = file.url;
+    a.download = file.name || 'download';
+    a.click();
+  } else {
+    // For external URLs (especially protected ones like university portals),
+    // use chrome.downloads to bypass CORS and attach the right cookies.
+    chrome.downloads.download({
+      url: file.url,
+      filename: file.name || 'download',
+      saveAs: false
+    }).catch(err => {
+      // Fallback if chrome.downloads fails for some reason
+      console.warn('chrome.downloads failed, falling back to <a> tag', err);
+      const a = document.createElement('a');
+      a.href = file.url;
+      a.download = file.name || 'download';
+      a.click();
+    });
+  }
 }
 
 document.getElementById('btn-download').addEventListener('click', () => {
